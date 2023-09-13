@@ -1,0 +1,12 @@
+This is a repository for application code used for the paper:
+
+Delegatee Application for Delegated Credentials Management:
+./androidapp 
+
+Delegator Token:
+./server/python-fido2/examples/server/server/SoftwareAuthenticator.py
+(Exposed by server.py)
+
+Relying Party:
+./server/python-fido2/fido2
+./server/python-fido2/examples/server/server/server.py
