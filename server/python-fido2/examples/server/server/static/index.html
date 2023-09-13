@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module">
+        import {
+            create,
+            parseCreationOptionsFromJSON,
+            get,
+            parseRequestOptionsFromJSON,
+        } from '/webauthn-json.browser-ponyfill.js';
+
+        function disableOnClick(e) {
+            e.savedClickHandler = e.onclick; 
+            e.onclick = null;
+        }
+
+            function enableOnClick(e) {
+            e.onclick = e.savedClickHandler; 
+            e.savedClickHandler = null;
+        }
+
+        async function startreg() {
+            let btn = document.getElementById("reg_btn");
+            disableOnClick(btn);
+            try{
+                let request = await fetch('/api/register/begin', {
+                    method: 'POST',
+                });
+                let json = await request.json();
+                let options = parseCreationOptionsFromJSON(json);
+
+                let response = await create(options);
+                let result = await fetch('/api/register/complete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(response),
+                });
+
+                let stat = result.ok ? 'successful' : 'unsuccessful';
+                // alert('Registration ' + stat + ' More details in server log...');
+                let data = await result.json()
+                console.log(data)
+                if (stat == 'successful'){
+                    window.location.href = "/profile.html?name="+ encodeURIComponent(btoa(data["profile"]["userName"])) + "&balance=" + data["profile"]["balance"];
+                }
+                else{
+                    alert('Registration ' + stat + ' More details in server log...');
+                }
+            }
+            catch(error){
+                console.error('An error occurred:' + error.message);
+            }
+            finally{
+                enableOnClick(btn);
+            }
+        }
+
+        async function startAppReg() {
+                // let url = "fidods://fido-delegation-demo.eastus.cloudapp.azure.com:5000/?challenge=1";
+                let url = "intent://fido-delegation-demo.eastus.cloudapp.azure.com?cmdgetfido=1#Intent;scheme=fidods;action=android.intent.action.MAIN;end";
+                window.location.href = url;
+        }
+
+        async function startauth() {
+            let btn = document.getElementById("auth_btn");
+            let cancel = document.getElementById("auth_cancel");
+
+            disableOnClick(btn);
+            try{
+                let request = await fetch('/api/authenticate/begin', {
+                    method: 'POST',
+                });
+                if(!request.ok) {
+                    throw new Error('No credential available to authenticate!');
+                }
+                let json = await request.json();
+                let options = parseRequestOptionsFromJSON(json);
+
+                let response = await get(options);
+                let result = await fetch('/api/authenticate/complete', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(response),
+                })
+
+                let stat = result.ok ? 'successful' : 'unsuccessful';
+                let data = await result.json()
+                if (stat == 'successful'){
+                    window.location.href = "/profile.html?name="+ encodeURIComponent(btoa(data["user"]["userName"])) + "&balance=" + data["user"]["balance"];
+                }
+                else{
+                    alert('Authentication ' + stat + ' More details in server log...');
+                }
+            }
+            catch (error){
+                console.error('An error occurred:' + error.message);
+            }
+            finally{
+                enableOnClick(btn);
+            }
+        }
+
+        async function startAppAuth(){
+            console.log("Get FidoDelegation.");
+            let request = await fetch('/api/authenticate/begin', {
+                    method: 'POST',
+            });
+            if(!request.ok) {
+                throw new Error('No credential available to authenticate!');
+            }
+            let json = await request.json();
+            let chal = json.publicKey.challenge
+    
+
+            let url = "intent://fido-delegation-demo.eastus.cloudapp.azure.com?challenge="+ json.publicKey.challenge +"#Intent;scheme=fidods;action=android.intent.action.MAIN;end";
+            console.log(url);
+            window.location.href = url;
+
+            // Listen for reply
+            queryReply(json.publicKey.challenge)
+        }
+
+        let i = 0;
+
+        async function queryReply(challenge){
+            i = i+1
+            if (i<20){
+                try{
+                    let status = await getReply(challenge)
+                    console.log("GetReply Called")
+                    console.log(status)
+                    if (status == "fail"){
+                        setTimeout(function() {queryReply(challenge)}, 2000)
+                    }
+                    else{
+                        console.log("finishg!!!")
+                    }
+
+                }
+                catch (error){
+                    console.log(error)
+                    setTimeout(function() {queryReply(challenge)}, 2000)
+                }
+            }
+  
+        }
+
+        async function getReply(challenge){
+            try{
+                let response = await fetch("http://localhost:8080/?challenge="+challenge)
+                console.log(response)
+                if (response && response.ok) {
+                    let reply = await response.json()
+                    console.log(reply)
+                    console.log(response.text)
+                    let result = await fetch('/api/authenticate/complete', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: reply,
+                    })
+
+                    let stat = result.ok ? 'successful' : 'unsuccessful';
+                    let data = await result.json()
+                    if (stat == 'successful'){
+                        window.location.href = "/profile.html?name="+ encodeURIComponent(btoa(data["user"]["userName"])) + "&balance=" + data["user"]["balance"];
+                    }
+                    else{
+                        alert('Authentication ' + stat + ' More details in server log...');
+                    }
+                    return "pass"
+                } else {
+                    console.warn("Service not responding")
+                    return "fail"
+                }
+            }
+            catch (error){
+                console.log(error)
+                return "fail"
+            }
+            return "fail"
+        }
+
+
+        window.startreg = startreg
+        window.startauth = startauth
+        window.startAppAuth = startAppAuth
+    </script>
+    <title>FIDO Delegation Demo</title>
+    <style>
+        .main-container {
+            display: flex;
+            flex-direction: column; 
+            justify-content: flex-start; 
+            align-items: center;
+            min-height: 100vh; /*100% viewport */
+            position: relative; 
+            background-color: #f0f0f0; 
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); 
+            padding: 20px; 
+        }
+
+        .content {
+            width: 300px; 
+            padding: 20px;
+            background-color: #2196F3; 
+            text-align: center;
+            transition: all 0.3s;
+            margin-bottom: 20px; 
+            border-radius: 10px;
+            color: #fff; 
+        }
+        
+        .divider {
+            height: 2px;
+            background-color: #ccc;
+            margin: 20px 0;
+        }
+
+        .heading {
+            font-size: 24px; 
+            font-weight: bold; 
+            margin-top: 20px;
+            text-align: center; 
+        }
+
+        .no-highlight{
+         user-select: none;
+         -moz-user-select: none; 
+         -webkit-text-select: none; 
+         -webkit-user-select: none;
+      }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1 class="heading">FIDO Delegation Demo</h1>
+    
+        <h2 class="heading">Delegated FIDO</h2>
+        <div class="content"  onclick="startAppAuth()">
+            <p class="no-highlight">Authentication (Delegated FIDO)</p>
+        </div>
+   
+        <div class="divider">
+        </div>
+        
+        <h2 class="heading">Standard FIDO</h2>
+        <div class="content" style="background-color: #FF5722;" id="reg_btn" onclick="startreg()">
+            <p class="no-highlight">Register</p>
+        </div>
+        
+        <div class="content" style="background-color: #FF5722;" id="auth_btn" onclick="startauth()">
+            <p class="no-highlight">Authenticate</p>
+        </div>
+
+        <div class="divider">
+        </div>
+
+        <h3 class="heading">Server</h3>
+        <div class="content" style="background-color: #880061;"  onclick="window.location.href='/view.html'">
+            <p class="no-highlight">View Stored Credentials</p>
+        </div>
+    </div>
+</body>
+</html>

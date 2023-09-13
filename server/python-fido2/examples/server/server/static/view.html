@@ -1,0 +1,62 @@
+<html>
+<head>
+  <title>Fido 2.0 webauthn demo</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script>
+    async function getrecords() {
+        let record_template = document.getElementById("template");
+        try{
+            let result = await fetch('/api/records', {
+            method: 'GET',
+            });
+
+            let data = await result.json();
+
+            for (entrykey in data){
+                let entry = data[entrykey];
+                let newNode = record_template.cloneNode(true);
+                newNode.style.display = "block";
+                newNode.querySelector("#template_username").textContent = entry["userName"];
+                newNode.querySelector("#template_balance").textContent = entry["balance"];
+                document.body.appendChild(newNode);
+            }
+        } catch(error){
+            console.error('An error occurred:' + error.message);
+        }
+        finally{
+        }
+    }
+
+  </script>
+  <style>
+    body { font-family: sans-serif; line-height: 1.5em; padding: 2em 2em; }
+    h1, h2 { color: #325F74; }
+    a { color: #0080ac; font-weight: bold; text-decoration: none;}
+    a:hover { text-decoration: underline; }
+    .material-symbols-outlined {
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24
+    }
+  </style>
+</head>
+<body onload="getrecords()">
+  <h1>WebAuthn demo using python-fido2</h1>
+  <p>This demo requires a browser supporting the WebAuthn API!</p>
+  <hr>
+  <div id="list">
+
+  </div>
+  <div id="template" class="card_template" style="display:none">
+    <span class="material-symbols-outlined" style="font-size:100px;">
+        account_circle
+    </span>
+    <div class="container">
+      <div>User: <label id="template_username">Placeholder</label></div>
+      <duv>UID: <label id="template_balance">Placeholder</label></div>
+    </div>
+  </div>
+</body>
+</html>

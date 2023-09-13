@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login-ed Profile</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            margin: 0px;
+            padding: 0px;
+            background: #f1f1f1;
+            font-family: arial;
+            box-sizing: border-box;
+        }
+
+        .card-container {
+            width: 50%;
+            height: 50%;
+            background: #FFF;
+            border-radius: 6px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0px 1px 10px 1px #000;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .upper-container {
+            height: 20%;
+            background: #7F00FF;
+        }
+
+        .image-container {
+            background: white;
+            width: 10em;
+            height: 10em;
+            border-radius: 50%;
+            padding: 5px;
+            font-family: 'Material Icons';
+            text-align: center;
+            position: relative;
+            left: 50%;
+            top: 20%;
+            transform: translate(-5em,0);
+        }
+
+        .image-container p {
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8em;
+        }
+
+        .lower-container {
+            height: 280px;
+            background: #FFF;
+            padding: 20px;
+            padding-top: 25%;
+            text-align: center;
+        }
+
+        .lower-container h3,
+        h4 {
+            box-sizing: border-box;
+            line-height: .6;
+            font-weight: lighter;
+        }
+
+        .lower-container h4 {
+            color: #7F00FF;
+            opacity: .6;
+            font-weight: bold;
+        }
+
+        .lower-container p {
+            font-size: 16px;
+            color: gray;
+            margin-bottom: 30px;
+        }
+
+        .top-left-div {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 15vw;
+            height: 15vw;
+            font-family: 'Material Icons';
+            font-size: 15vw;
+            line-height: 1;
+            text-align: left;
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-text-select: none;
+            -webkit-user-select: none;
+        }
+
+        .username {
+            text-align: center;
+            font-size: 3em;
+        }
+
+        .balance {
+            font-size: 3em;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-left-div" onclick="window.location.href='/index.html'">
+        arrow_back
+    </div>
+    <div class="card-container">
+        <div class="upper-container">
+            <div class="image-container">
+                <p>person</p>
+            </div>
+        </div>
+        <div class="lower-container">
+            <div>
+                <h3 class="username" id="username">Placeholder Name</h3>
+                <h4 class="balance" id="balance">Placeholder Name</h4>
+            </div>
+        </div>
+    </div>
+    <script>
+            // Function to parse a parameter from the URL
+        function getParameterByName(name, url) {
+            if (!url) url = window.location.href;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+            const results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        document.getElementById('username').textContent =  atob(decodeURIComponent(getParameterByName('name')));
+        document.getElementById('balance').textContent = getParameterByName('balance');
+    </script>
+</body>
+
+</html>

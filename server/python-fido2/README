@@ -1,0 +1,10 @@
+Cloned and modified version of 
+    - FIDO2 Python Authentication Server from https://github.com/Yubico/python-fido2
+        - Added local test 
+        - Added options to get Software Webauth Token
+    - Python Software Webauth Token from https://github.com/bodik/soft-webauthn
+        - Added delegated signing capability 
+        - Modify output to be b64urlsafe encoded str instead of raw bytes
+
+
+
