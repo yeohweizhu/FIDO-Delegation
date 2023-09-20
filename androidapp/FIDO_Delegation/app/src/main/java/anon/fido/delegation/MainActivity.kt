@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
 //        benchmark_delegate(VariantConfig.BasicInstance())
 //        benchmark_delegate(VariantConfig.ByteInstance())
 //        benchmark_sign(VariantConfig.BasicInstance())
-//        benchmark_sign(VariantConfig.ByteInstance()
+//        benchmark_sign(VariantConfig.ByteInstance())
 //        benchmark_sign_attest()
 //        benchmark_strongbox(VariantConfig.BasicInstance())
 //        benchmark_strongbox(VariantConfig.ByteInstance())

@@ -239,6 +239,7 @@ class SoftWebauthnDevice():
         for i in range(BIT_NUMBER):
             shared_splitsec[i] = bytes([csrng.integers(0, 256) for _ in range(16)]) #rand.randbytes(16) #os.urandom(16)
             final_sec = xor_otp(final_sec,shared_splitsec[i])
+        r = int.from_bytes(xor_otp(r.to_bytes(32,'big'),key_derive(final_sec,b'')), byteorder="big")
         for i in range(BIT_NUMBER):
             private_key = ec.generate_private_key(
                 ec.SECP256R1
@@ -335,6 +336,7 @@ class SoftWebauthnDevice():
         for i in range(CHUNK_NUMBER):
             shared_splitsec[i] = bytes([csrng.integers(0, 256) for _ in range(16)]) #rand.randbytes(16) #os.urandom(16)
             final_sec = xor_otp(final_sec,shared_splitsec[i])
+        r = int.from_bytes(xor_otp(r.to_bytes(32,'big'),key_derive(final_sec,b'')), byteorder="big")
         for i in range(CHUNK_NUMBER):
             allornot_subarr = [0]*pow(2,wordsize)
             for j in range(pow(2,wordsize)):

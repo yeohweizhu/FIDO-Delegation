@@ -279,11 +279,20 @@ class DelegatedFIDOSignature(
 
         val s = (part1 + rolling_sum) % order
 
-        Log.d(TAG, "Computed signed s:$s")
-
         val ks: KeyStore = KeyStore.getInstance("AndroidKeyStore")
         ks.load(null)
         ks.deleteEntry(keyalias)
+
+        Log.d(TAG, "Computed signed s:$s")
+
+        val rbyte = this.r.toByteArray()
+        if (rbyte.size == 33){
+            this.r = BigInteger(1,xorByteArrays(rbyte.sliceArray(1..32),deriveKey(final_sec,ByteArray(0)),32))
+        }
+        else{
+            val rbyte_pad = ByteArray(32-rbyte.size) + rbyte
+            this.r = BigInteger(1,xorByteArrays(rbyte_pad,deriveKey(final_sec,ByteArray(0)),32))
+        }
 
         return s
     }
@@ -343,6 +352,15 @@ class DelegatedFIDOSignature(
         val ks: KeyStore = KeyStore.getInstance("AndroidKeyStore")
         ks.load(null)
         ks.deleteEntry(keyalias)
+
+        val rbyte = this.r.toByteArray()
+        if (rbyte.size == 33){
+            this.r = BigInteger(1,xorByteArrays(rbyte.sliceArray(0..31),deriveKey(final_sec,ByteArray(0)),32))
+        }
+        else{
+            val rbyte_pad = ByteArray(32-rbyte.size) + rbyte
+            this.r = BigInteger(1,xorByteArrays(rbyte_pad,deriveKey(final_sec,ByteArray(0)),32))
+        }
 
         return s
 
