@@ -1,8 +1,10 @@
-This is a repository for application code used for the paper:
+This is a repository for application code used for the ASIACCS paper Delegating FIDO Credentials
+Using Single-use ECDSA Signatures:
 
 Delegatee Application for Delegated Credentials Management:
 ./androidapp 
 
+Token and RP is based on Yubico sample token and RP at https://github.com/Yubico/python-fido2.
 Delegator Token:
 ./server/python-fido2/examples/server/server/SoftwareAuthenticator.py
 (Exposed by server.py)
